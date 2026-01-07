@@ -35,16 +35,20 @@ try:
     img = Image.open(filepath)
     w, h = img.size
     
-    if w <= h:
+    # if image is < 4:3 add blurred sides
+    if w / h < 4 / 3:
 
-        # for portraight pictures crop to a square and add blured sides
-
-        # crop image to a square of size w
-        img = crop(img, w, w)
-
+        # for portraight pictures crop to a square
+        if h > w:
+            # crop image to a square of size w
+            img = crop(img, w, w)
+            target_h = w
+        else:
+            target_h = h
+            
         # Define target size of final image, 4:3
-        target_w, target_h = int(4 * w / 3), w
-
+        target_w = int(4 * target_h / 3)
+    
         # Create blurred background
         bg = img.resize((target_w, target_h), Image.LANCZOS).filter(ImageFilter.GaussianBlur(50))
 
@@ -53,9 +57,8 @@ try:
 
         img = bg
 
+    # if images is > 4:3 then crop top and bottom
     else:
-
-        # for landscape pictures crop to 4:3
 
         target_w, target_h = int(4 * h / 3), h
 
