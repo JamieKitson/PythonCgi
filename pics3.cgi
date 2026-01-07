@@ -17,7 +17,6 @@ def crop(img, target_w, target_h):
 	return img.crop((left, top, right, bottom))
 
 
-
 try:
     images = [f for f in os.listdir(IMAGE_FOLDER)
         if f.lower().endswith((".jpg", ".jpeg", ".png"))]
@@ -30,25 +29,23 @@ try:
     filename = random.choice(images)
     filepath = os.path.join(IMAGE_FOLDER, filename)
 
-
-    # Load your image
+    # Load image
     img = Image.open(filepath)
     w, h = img.size
     
+    # for portraight pictures crop to a square and use width as height
+    if h > w:
+        img = crop(img, w, w)
+        target_h = w
+    else:
+        target_h = h
+        
+    # Define target size of final image, 4:3
+    target_w = int(4 * target_h / 3)
+
     # if image is < 4:3 add blurred sides
     if w / h < 4 / 3:
-
-        # for portraight pictures crop to a square
-        if h > w:
-            # crop image to a square of size w
-            img = crop(img, w, w)
-            target_h = w
-        else:
-            target_h = h
-            
-        # Define target size of final image, 4:3
-        target_w = int(4 * target_h / 3)
-    
+   
         # Create blurred background
         bg = img.resize((target_w, target_h), Image.LANCZOS).filter(ImageFilter.GaussianBlur(50))
 
@@ -60,10 +57,9 @@ try:
     # if images is > 4:3 then crop top and bottom
     else:
 
-        target_w, target_h = int(4 * h / 3), h
+        img = crop(img, target_w, target_h)
 
-        img = crop(img, target_w, target_h)  #' img.crop((left, top, right, bottom))
-
+    # scale to desired size
     img = img.resize((1600, 1200), Image.LANCZOS)
 
     buf = BytesIO()
