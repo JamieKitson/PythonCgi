@@ -31,30 +31,27 @@ try:
 
     # Load image
     img = Image.open(filepath)
-    w, h = img.size
     
-    # for portraight pictures crop to a square and use width as height
-    if h > w:
-        img = crop(img, w, w)
-        target_h = w
-    else:
-        target_h = h
+    # for portraight pictures crop to a square using width as height
+    if img.height > img.width:
+        img = crop(img, img.width, img.width)
         
-    # Define target size of final image, 4:3
+    # Define target size of final image, 4:3, maintain (new) height
+    target_h = img.height
     target_w = int(4 * target_h / 3)
 
     # if image is < 4:3 add blurred sides
-    if w / h < 4 / 3:
+    if img.width / img.height < 4 / 3:
    
         # Create blurred background
         bg = img.resize((target_w, target_h), Image.LANCZOS).filter(ImageFilter.GaussianBlur(50))
 
         # Paste original image centered
-        bg.paste(img, ((target_w - w) // 2, 0))
+        bg.paste(img, ((target_w - img.width) // 2, 0))
 
         img = bg
 
-    # if images is > 4:3 then crop top and bottom
+    # if images is > 4:3 then crop left and right
     else:
 
         img = crop(img, target_w, target_h)
