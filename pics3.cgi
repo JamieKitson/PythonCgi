@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os, random, cgi, sys
+import os, random, cgi, sys, datetime
 from PIL import Image, ImageFilter
 from io import BytesIO
 
@@ -27,6 +27,12 @@ try:
         sys.exit(0)
 
     filename = random.choice(images)
+
+    v = cgi.FieldStorage().getvalue('v')
+    
+    with open('log.log', 'a') as file:
+        file.write(datetime.datetime.now().strftime('%x %X ') + f"{filename} {v} \n")
+
     filepath = os.path.join(IMAGE_FOLDER, filename)
 
     # Load image
