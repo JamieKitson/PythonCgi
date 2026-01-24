@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 
 import argparse
-import pathlib
-import sys
 import requests
+import subprocess
 
 from io import BytesIO
 from PIL import Image
 from inky.auto import auto
 from gpiozero import Button
-from time import sleep, time
 
 url = "http://192.168.1.4/py/pics3.cgi"
 BUTTON_PIN = 5
@@ -19,15 +17,14 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("--saturation", "-s", type=float, default=0.5, help="Colour palette saturation")
 
-inky = auto(ask_user=True, verbose=True)
+inky = auto()
 
 args, _ = parser.parse_known_args()
 
 response = requests.get(url)
 img = Image.open(BytesIO(response.content))
-#image = Image.open(args.file)
 
-img.save("image.jpg")
+img.save("/home/jamie/inky/examples/spectra6/image.jpg")
 resizedimage = img.resize(inky.resolution)
 
 try:
@@ -37,19 +34,14 @@ except TypeError:
 
 inky.show()
 
-button = Button(BUTTON_PIN, pull_up=True)
-
-start = time()
-
 print("Waiting for button press...")
 
-while time() - start < TIMEOUT:
-    if button.is_pressed:
-        print("Button pressed!")
-        # Do whatever you want here
-        exit(0)
-    sleep(0.05)
+button = Button(BUTTON_PIN) 
+
+if button.wait_for_press(timeout=TIMEOUT):
+    print("Button was pressed!")
+    exit(0)
 
 print("No button press, shutting down")
-#subprocess.run(["sudo", "shutdown", "-h", "now"])
+subprocess.run(["sudo", "shutdown", "-h", "now"])
 
