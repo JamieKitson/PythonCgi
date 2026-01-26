@@ -23,12 +23,16 @@ class I2CCommand(IntEnum):
     SHUTDOWN = 0x10
 
 def i2c(cmd):
-    with SMBus(1) as bus:
-        bus.write_byte(0x12, cmd)
-        msg = i2c_msg.read(0x12, 1)
-        bus.i2c_rdwr(msg)
-        data = list(msg)
-        return data[0]
+    try:
+        with SMBus(1) as bus:
+            bus.write_byte(0x12, cmd)
+            msg = i2c_msg.read(0x12, 1)
+            bus.i2c_rdwr(msg)
+            data = list(msg)
+            return data[0]
+    except Exception as e:
+        print(f"I2C communication error: {e}")
+        return -1
 
 def read_voltage():
     voltage = i2c(I2CCommand.READ_VOLTAGE)
